@@ -375,35 +375,27 @@ app.get("/admin/export", async (req, res) => {
 
     const result = await pool.query(`
       SELECT
-        id,
-        created_at,
-        data_source,
-        survey_version,
-        source_case_id,
-        consent,
-        condition,
-        demand,
-        final_grade,
-        role_check,
-        recalled_demand,
-        pressure,
-        restricted_freedom,
-        manipulative,
-        anger,
-        appropriate,
-        fair,
-        main_reason,
-        comment,
-        duration_seconds,
-        user_agent,
+        id AS "Fallnummer",
+        created_at AS "Zeitpunkt",
+        data_source AS "Datenquelle",
+        survey_version AS "Fragebogenversion",
+        source_case_id AS "SoSci-Fallnummer",
 
-        perceived_fairness,
-        perceived_exaggeration,
-        resistance,
-        seriousness,
-        age,
-        gender,
-        university_relation
+        condition AS "Treatment_Code",
+        demand AS "Forderung_des_Studierenden",
+        final_grade AS "Final_vergebene_Punktzahl",
+
+        role_check AS "Antwort_Rollenkontrolle",
+        recalled_demand AS "Erinnerte_Forderung",
+
+        pressure AS "Wahrgenommener_Druck",
+        restricted_freedom AS "Eingeschraenkte_Bewertungsfreiheit",
+        manipulative AS "Wahrnehmung_als_manipulativ",
+        anger AS "Veraergerung",
+        appropriate AS "Wahrgenommene_Angemessenheit",
+        fair AS "Wahrgenommene_Fairness",
+
+        duration_seconds AS "Bearbeitungsdauer_in_Sekunden"
 
       FROM responses
       ORDER BY created_at ASC, id ASC;
@@ -421,12 +413,9 @@ app.get("/admin/export", async (req, res) => {
 
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=notenvergabe_responses.csv"
+      "attachment; filename=notenvergabe_auswertung.csv"
     );
 
-    /*
-     * BOM sorgt dafür, dass Excel deutsche Umlaute korrekt erkennt.
-     */
     res.send("\uFEFF" + csv);
   } catch (error) {
     console.error("Export fehlgeschlagen:", error);
