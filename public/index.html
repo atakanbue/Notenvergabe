@@ -755,11 +755,12 @@
   }
 
   function questionnaireValid() {
-    return radioValue("roleCheck")
-      && document.getElementById("recalledDemand").value !== ""
-      && document.getElementById("mainReason").value !== ""
-      && likertItems.every(([key]) => radioValue(key) !== null);
-  }
+  return (
+    radioValue("roleCheck") !== null &&
+    document.getElementById("recalledDemand").value !== "" &&
+    likertItems.every(([key]) => radioValue(key) !== null)
+  );
+}
 
   async function submitSurvey() {
     const errorBox = document.getElementById("questionnaireError");
@@ -775,22 +776,30 @@
     submitButton.textContent = "Wird gespeichert ...";
 
     const payload = {
-      consent: true,
-      condition,
-      demand,
-      finalGrade,
-      roleCheck: radioValue("roleCheck"),
-      recalledDemand: Number(document.getElementById("recalledDemand").value),
-      pressure: Number(radioValue("pressure")),
-      restrictedFreedom: Number(radioValue("restrictedFreedom")),
-      manipulative: Number(radioValue("manipulative")),
-      anger: Number(radioValue("anger")),
-      appropriate: Number(radioValue("appropriate")),
-      fair: Number(radioValue("fair")),
-      mainReason: document.getElementById("mainReason").value,
-      comment: document.getElementById("comment").value.trim(),
-      durationSeconds: Math.round((Date.now() - startTime) / 1000)
-    };
+  consent: true,
+
+  condition: condition,
+  demand: demand,
+  finalGrade: finalGrade,
+
+  roleCheck: radioValue("roleCheck"),
+  recalledDemand: Number(
+    document.getElementById("recalledDemand").value
+  ),
+
+  pressure: Number(radioValue("pressure")),
+  restrictedFreedom: Number(
+    radioValue("restrictedFreedom")
+  ),
+  manipulative: Number(radioValue("manipulative")),
+  anger: Number(radioValue("anger")),
+  appropriate: Number(radioValue("appropriate")),
+  fair: Number(radioValue("fair")),
+
+  durationSeconds: Math.round(
+    (Date.now() - startTime) / 1000
+  )
+};
 
     try {
       const response = await fetch("/api/submit", {
