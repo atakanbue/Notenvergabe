@@ -195,23 +195,21 @@ app.get("/health", async (_req, res) => {
  */
 app.post("/api/submit", async (req, res) => {
   try {
-    const {
-      consent,
-      condition,
-      demand,
-      finalGrade,
-      roleCheck,
-      recalledDemand,
-      pressure,
-      restrictedFreedom,
-      manipulative,
-      anger,
-      appropriate,
-      fair,
-      mainReason,
-      comment,
-      durationSeconds
-    } = req.body;
+  const {
+  consent,
+  condition,
+  demand,
+  finalGrade,
+  roleCheck,
+  recalledDemand,
+  pressure,
+  restrictedFreedom,
+  manipulative,
+  anger,
+  appropriate,
+  fair,
+  durationSeconds
+} = req.body;
 
     const conditionNumber = Number(condition);
     const demandNumber = Number(demand);
@@ -291,80 +289,63 @@ app.post("/api/submit", async (req, res) => {
       });
     }
 
-    if (
-      typeof mainReason !== "string" ||
-      mainReason.trim() === ""
-    ) {
-      return res.status(400).json({
-        error: "Bitte geben Sie den wichtigsten Beweggrund an."
-      });
-    }
-
     const result = await pool.query(
-      `
-        INSERT INTO responses (
-          data_source,
-          survey_version,
-          consent,
-          condition,
-          demand,
-          final_grade,
-          role_check,
-          recalled_demand,
-          pressure,
-          restricted_freedom,
-          manipulative,
-          anger,
-          appropriate,
-          fair,
-          main_reason,
-          comment,
-          duration_seconds,
-          user_agent
-        )
-        VALUES (
-          'render',
-          'render_v2',
-          $1,
-          $2,
-          $3,
-          $4,
-          $5,
-          $6,
-          $7,
-          $8,
-          $9,
-          $10,
-          $11,
-          $12,
-          $13,
-          $14,
-          $15,
-          $16
-        )
-        RETURNING id, created_at;
-      `,
-      [
-        true,
-        conditionNumber,
-        demandNumber,
-        finalGradeNumber,
-        roleCheck,
-        recalledDemandNumber,
-        likertValues.pressure,
-        likertValues.restrictedFreedom,
-        likertValues.manipulative,
-        likertValues.anger,
-        likertValues.appropriate,
-        likertValues.fair,
-        mainReason.trim(),
-        typeof comment === "string" && comment.trim() !== ""
-          ? comment.trim()
-          : null,
-        toOptionalInteger(durationSeconds),
-        req.headers["user-agent"] || null
-      ]
-    );
+  `
+    INSERT INTO responses (
+      data_source,
+      survey_version,
+      consent,
+      condition,
+      demand,
+      final_grade,
+      role_check,
+      recalled_demand,
+      pressure,
+      restricted_freedom,
+      manipulative,
+      anger,
+      appropriate,
+      fair,
+      duration_seconds,
+      user_agent
+    )
+    VALUES (
+      'render',
+      'render_v2',
+      $1,
+      $2,
+      $3,
+      $4,
+      $5,
+      $6,
+      $7,
+      $8,
+      $9,
+      $10,
+      $11,
+      $12,
+      $13,
+      $14
+    )
+    RETURNING id, created_at;
+  `,
+  [
+    true,
+    conditionNumber,
+    demandNumber,
+    finalGradeNumber,
+    roleCheck,
+    recalledDemandNumber,
+    likertValues.pressure,
+    likertValues.restrictedFreedom,
+    likertValues.manipulative,
+    likertValues.anger,
+    likertValues.appropriate,
+    likertValues.fair,
+    toOptionalInteger(durationSeconds),
+    req.headers["user-agent"] || null
+  ]
+);
 
     res.status(201).json({
       ok: true,
