@@ -1,448 +1,844 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Studie zur Notenvergabe</title>
-
   <style>
-    :root {
-      --primary: #1e3a8a;
-      --secondary: #2563eb;
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --border: #dbe3ef;
-      --success: #166534;
-      --danger: #b91c1c;
+    :root{
+      --navy:#183153;
+      --blue:#3f67aa;
+      --blue-dark:#2f5597;
+      --blue-soft:#eaf1fb;
+      --blue-soft-2:#dfe9f7;
+      --red:#c62828;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --text:#202733;
+      --muted:#667085;
+      --border:#d7dee8;
+      --success:#166534;
+      --danger:#b91c1c;
+      --shadow:0 18px 45px rgba(25,49,83,.10);
     }
 
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at top left, rgba(63,103,170,.10), transparent 30%),
+        var(--bg);
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
     }
 
-    .container {
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
+    .shell{
+      width:min(980px, calc(100% - 28px));
+      margin:28px auto;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 34px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:12px;
+      color:var(--muted);
+      font-size:14px;
     }
 
-    h1, h2 {
-      color: var(--primary);
-      margin-top: 0;
+    .brand{
+      color:var(--navy);
+      font-weight:700;
     }
 
-    p {
-      line-height: 1.65;
-      font-size: 17px;
+    .progress-track{
+      height:8px;
+      background:#e3e8ef;
+      border-radius:999px;
+      overflow:hidden;
+      margin-bottom:18px;
     }
 
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
+    .progress-bar{
+      width:0;
+      height:100%;
+      background:linear-gradient(90deg,var(--navy),var(--blue));
+      transition:width .25s ease;
     }
 
-    .box {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-      margin: 18px 0;
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:38px;
+      box-shadow:var(--shadow);
     }
 
-    .quote {
-      background: #eef4ff;
-      border-left: 5px solid var(--primary);
-      padding: 18px;
-      border-radius: 10px;
-      font-style: italic;
-      margin: 22px 0;
+    .page{display:none}
+    .page.active{display:block;animation:fadeIn .22s ease}
+
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(5px)}
+      to{opacity:1;transform:translateY(0)}
     }
 
-    button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 14px 24px;
-      font-size: 17px;
-      font-weight: 700;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 15px;
+    h1,h2,h3{
+      margin-top:0;
+      color:var(--navy);
     }
 
-    button:hover {
-      background: var(--secondary);
+    h1{
+      font-size:clamp(30px,4vw,42px);
+      line-height:1.15;
+      margin-bottom:14px;
     }
 
-    .hidden {
-      display: none;
+    h2{
+      font-size:clamp(24px,3vw,32px);
+      margin-bottom:16px;
     }
 
-    label {
-      display: block;
-      margin: 12px 0;
-      font-size: 16px;
+    h3{
+      font-size:19px;
+      margin-bottom:9px;
     }
 
-    input[type="number"],
-    select {
-      width: 100%;
-      max-width: 340px;
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 6px;
+    p{
+      font-size:17px;
+      line-height:1.65;
+      margin:0 0 16px;
     }
 
-    .scale {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      max-width: 520px;
-      margin: 8px 0 20px 0;
+    .lead{
+      color:#344054;
+      font-size:18px;
     }
 
-    .scale label {
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      padding: 10px;
-      border-radius: 8px;
-      text-align: center;
-      margin: 0;
-      cursor: pointer;
+    .info-box{
+      background:#f8fafc;
+      border:1px solid var(--border);
+      border-left:5px solid var(--blue);
+      border-radius:13px;
+      padding:20px 22px;
+      margin:18px 0;
+      line-height:1.65;
+      font-size:16px;
     }
 
-    .grade-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 8px;
-      margin: 15px 0;
+    .info-box.blue{
+      background:var(--blue-soft);
     }
 
-    .grade-grid label {
-      border: 1px solid var(--border);
-      padding: 12px 0;
-      text-align: center;
-      border-radius: 8px;
-      background: #f8fafc;
-      cursor: pointer;
-      margin: 0;
-      font-weight: 700;
+    .scenario-section{
+      background:#fbfcfe;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:22px;
+      margin:18px 0;
     }
 
-    .error {
-      color: var(--danger);
-      font-weight: 700;
-      margin-top: 12px;
+    .scenario-section .section-title{
+      display:inline-block;
+      margin-bottom:10px;
+      color:var(--navy);
+      font-weight:800;
+      font-size:17px;
     }
 
-    .success {
-      color: var(--success);
-      font-weight: 700;
-      font-size: 20px;
+    .demand-box{
+      margin:24px 0;
+      padding:24px 26px;
+      border-radius:15px;
+      background:var(--blue-soft);
+      border:1px solid #bfd0e7;
+      border-left:6px solid var(--blue-dark);
+      font-size:18px;
+      line-height:1.75;
     }
 
-    .footer {
-      margin-top: 25px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 14px;
+    .demand-value{
+      color:var(--red);
+      font-weight:800;
+      font-size:22px;
+      white-space:nowrap;
     }
 
-    @media (max-width: 700px) {
-      .grade-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
+    .summary-box{
+      background:#f7f7f8;
+      border:1px solid #d7d7da;
+      border-radius:12px;
+      padding:18px 20px;
+      margin:18px 0;
+    }
 
-      .card {
-        padding: 22px;
-      }
+    .summary-box ul{
+      margin:10px 0 0 20px;
+      padding:0;
+    }
+
+    .summary-box li{
+      margin:8px 0;
+      line-height:1.45;
+    }
+
+    .notice-box{
+      background:#eef4ff;
+      border:1px solid #b9cff4;
+      border-radius:12px;
+      padding:16px 18px;
+      margin:18px 0;
+      line-height:1.55;
+    }
+
+    .question-panel{
+      border:1px solid #b6c7e4;
+      border-radius:14px;
+      overflow:hidden;
+      margin-top:22px;
+      background:var(--blue-soft-2);
+    }
+
+    .question-header{
+      background:#5478bb;
+      color:white;
+      padding:13px 16px;
+      font-weight:700;
+      font-size:17px;
+      line-height:1.45;
+    }
+
+    .question-sub{
+      display:block;
+      margin-top:3px;
+      font-weight:600;
+      font-size:15px;
+    }
+
+    .grade-list{
+      padding:10px 12px 12px;
+    }
+
+    .grade-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:9px;
+      cursor:pointer;
+      transition:background .15s ease, transform .1s ease;
+      font-size:16px;
+    }
+
+    .grade-row:hover{
+      background:rgba(255,255,255,.58);
+      transform:translateX(2px);
+    }
+
+    .grade-row input{
+      width:18px;
+      height:18px;
+      margin:0;
+      accent-color:var(--blue-dark);
+    }
+
+    .grade-row strong{
+      min-width:82px;
+      color:var(--navy);
+    }
+
+    .buttons{
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin-top:28px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:0;
+      border-radius:10px;
+      padding:14px 22px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      transition:transform .12s ease, background .12s ease;
+    }
+
+    button:hover{transform:translateY(-1px)}
+
+    .primary{
+      background:var(--navy);
+      color:white;
+    }
+
+    .primary:hover{background:var(--blue-dark)}
+
+    .secondary{
+      background:#e8edf4;
+      color:var(--text);
+    }
+
+    .choice{
+      display:block;
+      background:#f8fafc;
+      border:1px solid var(--border);
+      border-radius:11px;
+      padding:15px 16px;
+      margin:11px 0;
+      cursor:pointer;
+    }
+
+    .choice input{margin-right:9px}
+
+    .field{margin:22px 0}
+
+    .label{
+      display:block;
+      margin-bottom:9px;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    input[type=number],select,textarea{
+      width:100%;
+      padding:13px 14px;
+      border:1px solid var(--border);
+      border-radius:9px;
+      background:white;
+      font:inherit;
+    }
+
+    textarea{
+      min-height:105px;
+      resize:vertical;
+    }
+
+    .likert{
+      background:#f8fafc;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:17px;
+      margin:20px 0;
+    }
+
+    .likert-title{
+      font-weight:700;
+      line-height:1.45;
+      margin-bottom:13px;
+    }
+
+    .scale{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+    }
+
+    .scale label{position:relative}
+    .scale input{position:absolute;opacity:0}
+
+    .scale span{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:45px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:8px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .scale input:checked+span{
+      background:var(--blue-dark);
+      color:white;
+      border-color:var(--blue-dark);
+    }
+
+    .anchors{
+      display:flex;
+      justify-content:space-between;
+      color:var(--muted);
+      font-size:13px;
+      margin-top:8px;
+      gap:15px;
+    }
+
+    .error{
+      display:none;
+      margin-top:15px;
+      color:var(--danger);
+      font-weight:700;
+    }
+
+    .error.show{display:block}
+
+    .success{
+      color:var(--success);
+      font-weight:700;
+    }
+
+    hr{
+      border:0;
+      border-top:1px solid var(--border);
+      margin:30px 0;
+    }
+
+    .footer{
+      margin-top:15px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    @media(max-width:720px){
+      .card{padding:24px 17px}
+      .buttons button{width:100%}
+      .grade-row{align-items:flex-start}
+      .grade-row strong{min-width:68px}
+      .anchors{font-size:12px}
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="card">
-
-      <section id="page-consent">
-        <h1>Studie zur Notenvergabe</h1>
-
-        <p>
-          Vielen Dank, dass Sie an dieser kurzen Studie teilnehmen. In dieser Befragung geht es um Entscheidungen in einer Bewertungssituation.
-        </p>
-
-        <p>
-          Die Teilnahme ist freiwillig und anonym. Es werden keine Namen oder E-Mail-Adressen abgefragt. Die Bearbeitung dauert nur wenige Minuten.
-        </p>
-
-        <div class="box">
-          <label>
-            <input type="checkbox" id="consent" />
-            Ich habe die Informationen zur Studie gelesen und bin mit der anonymen Teilnahme einverstanden.
-          </label>
-        </div>
-
-        <button onclick="startSurvey()">Studie starten</button>
-        <div id="consent-error" class="error hidden">
-          Bitte stimmen Sie der Teilnahme zu, um fortzufahren.
-        </div>
-      </section>
-
-      <section id="page-scenario" class="hidden">
-        <h2>Ihre Rolle</h2>
-
-        <p>
-          Sie übernehmen in diesem Experiment die Rolle eines unerfahrenen Professors bzw. einer unerfahrenen Professorin.
-        </p>
-
-        <p>
-          Ihre Aufgabe ist es, die akademische Leistung eines Studierenden auf einer Punkteskala von 0 bis 15 Punkten zu bewerten.
-          Dabei gelten 0 bis 4 Punkte als nicht bestanden.
-        </p>
-
-        <p>
-          Die Leistung des Studierenden war insgesamt solide, aber nicht eindeutig einzuordnen.
-          Nach Ihrer ersten Einschätzung liegt die Leistung ungefähr im Bereich von <strong>7 bis 9 Punkten</strong>.
-        </p>
-
-        <p>
-          Sie haben sich jedoch noch nicht endgültig festgelegt und halten eine Anpassung der Bewertung grundsätzlich für möglich.
-        </p>
-
-        <button onclick="showStatement()">Weiter</button>
-      </section>
-
-      <section id="page-statement" class="hidden">
-        <h2>Aussage des Studierenden</h2>
-
-        <p>
-          Der Studierende kennt Ihre bisherige Einschätzung nicht und begründet seine gewünschte Bewertung ausschließlich auf Grundlage seiner eigenen Einschätzung der erbrachten Leistung.
-        </p>
-
-        <div class="quote">
-          „Ich finde, meine Leistung sollte mit <strong><span id="demand-text"></span> Punkten</strong> bewertet werden.
-          Nach meiner eigenen Einschätzung habe ich im Laufe des Semesters konstant gute Leistungen gezeigt.
-          Ich habe mich regelmäßig beteiligt, viel Zeit in die Vorbereitung investiert und die wichtigsten Inhalte verstanden.“
-        </div>
-
-        <button onclick="showRating()">Weiter zur finalen Bewertung</button>
-      </section>
-
-      <section id="page-rating" class="hidden">
-        <h2>Finale Bewertung</h2>
-
-        <div class="box">
-          <p><strong>Kurze Zusammenfassung:</strong></p>
-          <p>
-            Ihre erste Einschätzung lag ungefähr bei <strong>7 bis 9 Punkten</strong>.
-            Der Studierende hält eine Bewertung von <strong><span id="demand-summary"></span> Punkten</strong> für angemessen.
-          </p>
-        </div>
-
-        <p>
-          Welche finale Punktzahl würden Sie vergeben?
-        </p>
-
-        <div class="grade-grid" id="grade-grid"></div>
-
-        <h2>Kurze Einschätzung der Forderung</h2>
-        <p class="muted">1 = stimme gar nicht zu, 5 = stimme voll zu</p>
-
-        <label>Die Forderung wirkte auf mich angemessen.</label>
-        <div class="scale" data-name="perceivedFairness"></div>
-
-        <label>Die Forderung wirkte auf mich überzogen.</label>
-        <div class="scale" data-name="perceivedExaggeration"></div>
-
-        <label>Die Forderung hat bei mir Widerstand ausgelöst.</label>
-        <div class="scale" data-name="resistance"></div>
-
-        <label>Der Studierende wirkte mit seiner Forderung seriös.</label>
-        <div class="scale" data-name="seriousness"></div>
-
-        <h2>Kontrollvariablen</h2>
-
-        <label>
-          Alter:
-          <input type="number" id="age" min="16" max="99" placeholder="z. B. 23" />
-        </label>
-
-        <label>
-          Geschlecht:
-          <select id="gender">
-            <option value="">Keine Angabe</option>
-            <option value="weiblich">Weiblich</option>
-            <option value="maennlich">Männlich</option>
-            <option value="divers">Divers</option>
-          </select>
-        </label>
-
-        <label>
-          Hochschulbezug:
-          <select id="universityRelation">
-            <option value="">Keine Angabe</option>
-            <option value="student">Student/in</option>
-            <option value="kein_hochschulbezug">Kein Hochschulbezug</option>
-            <option value="sonstiges">Sonstiges</option>
-          </select>
-        </label>
-
-        <button onclick="submitSurvey()">Antworten absenden</button>
-        <div id="submit-error" class="error hidden"></div>
-      </section>
-
-      <section id="page-thanks" class="hidden">
-        <h2>Vielen Dank!</h2>
-        <p class="success">Ihre Antworten wurden gespeichert.</p>
-        <p>Sie können dieses Fenster nun schließen.</p>
-      </section>
-
-    </div>
-
-    <div class="footer">
-      Gruppe 6 · Bachelorprojekt · International Finance · SoSe 2026
-    </div>
+<main class="shell">
+  <div class="topbar">
+    <div class="brand">Gruppe 6 · Bachelorprojekt</div>
+    <div id="step">Schritt 1 von 6</div>
   </div>
 
-  <script>
-    const startTime = Date.now();
+  <div class="progress-track">
+    <div class="progress-bar" id="bar"></div>
+  </div>
 
-    const demands = [9, 11, 13, 15];
-    const condition = Math.floor(Math.random() * 4) + 1;
-    const demand = demands[condition - 1];
+  <div class="card">
+    <section class="page active" id="p1">
+      <h1>Studie zur Notenvergabe</h1>
+      <p class="lead">In dieser kurzen Studie geht es um Entscheidungen in einer akademischen Bewertungssituation.</p>
 
-    let finalGrade = null;
+      <div class="info-box blue">
+        <strong>Teilnahmehinweise</strong><br>
+        Die Teilnahme ist freiwillig und anonym. Es werden keine Namen oder E-Mail-Adressen abgefragt.
+      </div>
 
-    function hideAll() {
-      document.querySelectorAll("section").forEach(section => {
-        section.classList.add("hidden");
+      <label class="choice">
+        <input type="radio" name="consent" value="yes">
+        Ja, ich möchte teilnehmen.
+      </label>
+
+      <label class="choice">
+        <input type="radio" name="consent" value="no">
+        Nein, ich möchte nicht teilnehmen.
+      </label>
+
+      <div class="error" id="consentError">Bitte treffen Sie eine Auswahl.</div>
+
+      <div class="buttons">
+        <button class="primary" type="button" onclick="handleConsent()">Weiter</button>
+      </div>
+    </section>
+
+    <section class="page" id="p2">
+      <h2>Bewertungssituation</h2>
+
+      <div class="scenario-section">
+        <span class="section-title">Ihre Rolle</span>
+        <p>
+          Sie übernehmen in diesem Experiment die Rolle eines unerfahrenen Professors
+          bzw. einer unerfahrenen Professorin.
+        </p>
+        <p>
+          Ihre Aufgabe ist es, die akademische Leistung eines Studierenden auf einer
+          Punkteskala von <strong>0 bis 15 Punkten</strong> zu bewerten.
+          Dabei gelten <strong>0 bis 4 Punkte als nicht bestanden</strong>.
+        </p>
+      </div>
+
+      <div class="scenario-section">
+        <span class="section-title">Grundlage der Bewertung</span>
+        <p>
+          Die Gesamtnote basiert auf verschiedenen Leistungen während des Semesters,
+          zum Beispiel mündlicher und schriftlicher Beteiligung, kleineren Aufgaben
+          sowie weiteren Studienleistungen.
+        </p>
+      </div>
+
+      <div class="scenario-section">
+        <span class="section-title">Ihre vorläufige Einschätzung</span>
+        <p>
+          Die Leistung des Studierenden war insgesamt solide, aber nicht eindeutig
+          einzuordnen. Nach Ihrer ersten Einschätzung liegt die Leistung ungefähr
+          im Bereich von <strong>7 bis 9 Punkten</strong>.
+        </p>
+        <p>
+          Sie haben sich jedoch noch nicht endgültig festgelegt und halten eine
+          Anpassung der Bewertung grundsätzlich für möglich.
+        </p>
+      </div>
+
+      <div class="buttons">
+        <button class="secondary" type="button" onclick="showPage(1)">Zurück</button>
+        <button class="primary" type="button" onclick="showPage(3)">Weiter</button>
+      </div>
+    </section>
+
+    <section class="page" id="p3">
+      <h2>Aussage des Studierenden</h2>
+
+      <p>
+        Der Studierende kennt Ihre bisherige Einschätzung nicht und begründet seine
+        gewünschte Bewertung ausschließlich auf Grundlage seiner eigenen Einschätzung
+        der erbrachten Leistung.
+      </p>
+
+      <div class="demand-box">
+        „Ich finde, meine Leistung sollte mit
+        <span class="demand-value"><span class="demandValue"></span> Punkten</span>
+        bewertet werden. Nach meiner eigenen Einschätzung habe ich im Laufe des Semesters
+        konstant gute Leistungen gezeigt. Ich habe mich regelmäßig beteiligt, viel Zeit
+        in die Vorbereitung investiert und die wichtigsten Inhalte verstanden.
+        Außerdem habe ich mich im Vergleich zu anderen Studierenden aktiv eingebracht
+        und mir bei der Bearbeitung große Mühe gegeben.“
+      </div>
+
+      <div class="buttons">
+        <button class="secondary" type="button" onclick="showPage(2)">Zurück</button>
+        <button class="primary" type="button" onclick="showPage(4)">Weiter zur finalen Bewertung</button>
+      </div>
+    </section>
+
+    <section class="page" id="p4">
+      <h2 style="text-align:center;">Finale Bewertung</h2>
+
+      <div class="summary-box">
+        <strong>Kurze Zusammenfassung:</strong>
+        <ul>
+          <li>Ihre erste Einschätzung lag ungefähr bei <strong>7 bis 9 Punkten</strong>.</li>
+          <li>Der Studierende hält eine Bewertung von <strong><span class="demandValue"></span> Punkten</strong> für angemessen.</li>
+          <li>Bitte entscheiden Sie nun, welche endgültige Punktzahl Sie vergeben würden.</li>
+        </ul>
+      </div>
+
+      <div class="notice-box">
+        <strong>Hinweis:</strong>
+        Bitte wählen Sie genau eine Punktzahl auf der Skala von
+        <strong>0 bis 15 Punkten</strong>. Dabei gelten
+        <strong>0 bis 4 Punkte als nicht bestanden</strong>.
+      </div>
+
+      <div class="question-panel">
+        <div class="question-header">
+          Welche endgültige Punktzahl würden Sie dem Studierenden geben?
+          <span class="question-sub">Bitte wählen Sie genau eine Punktzahl aus.</span>
+        </div>
+
+        <div class="grade-list" id="gradeList"></div>
+      </div>
+
+      <div class="error" id="gradeError">Bitte wählen Sie eine finale Punktzahl aus.</div>
+
+      <div class="buttons">
+        <button class="secondary" type="button" onclick="showPage(3)">Zurück</button>
+        <button class="primary" type="button" onclick="continueRating()">Weiter</button>
+      </div>
+    </section>
+
+    <section class="page" id="p5">
+      <h2>Kurzer Abschlussfragebogen</h2>
+      <p>Bitte beantworten Sie noch einige Fragen zum gerade gelesenen Szenario.</p>
+
+      <div class="field">
+        <span class="label">Welche Rolle haben Sie im Szenario übernommen?</span>
+
+        <label class="choice">
+          <input type="radio" name="roleCheck" value="student">
+          Studierender bzw. Studierende
+        </label>
+
+        <label class="choice">
+          <input type="radio" name="roleCheck" value="professor">
+          Professor bzw. Professorin
+        </label>
+
+        <label class="choice">
+          <input type="radio" name="roleCheck" value="external">
+          Externe prüfende Person
+        </label>
+
+        <label class="choice">
+          <input type="radio" name="roleCheck" value="none">
+          Es wurde keine bestimmte Rolle beschrieben
+        </label>
+      </div>
+
+      <div class="field">
+        <label class="label" for="recalledDemand">
+          Welche Punktzahl forderte der Studierende ungefähr?
+        </label>
+        <input id="recalledDemand" type="number" min="0" max="15" step="1" placeholder="Punktzahl eingeben">
+      </div>
+
+      <hr>
+      <p>Bitte geben Sie an, inwieweit Sie den folgenden Aussagen zustimmen.</p>
+      <div id="likertContainer"></div>
+      <hr>
+
+      <div class="field">
+        <label class="label" for="mainReason">
+          Welcher Faktor hat Ihre finale Bewertung am stärksten beeinflusst?
+        </label>
+
+        <select id="mainReason">
+          <option value="">Bitte auswählen</option>
+          <option value="initial_assessment">Die ursprüngliche Einschätzung von 7 bis 9 Punkten</option>
+          <option value="student_demand">Die konkrete Forderung des Studierenden</option>
+          <option value="described_performance">Die beschriebene Leistung des Studierenden</option>
+          <option value="fairness">Die wahrgenommene Angemessenheit bzw. Fairness der Forderung</option>
+          <option value="gut_feeling">Spontanes Bauchgefühl</option>
+          <option value="other">Sonstiges</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label" for="comment">Optionaler kurzer Kommentar</label>
+        <textarea id="comment"></textarea>
+      </div>
+
+      <div class="error" id="questionnaireError">Bitte beantworten Sie alle Pflichtfragen.</div>
+
+      <div class="buttons">
+        <button class="secondary" type="button" onclick="showPage(4)">Zurück</button>
+        <button class="primary" id="submitButton" type="button" onclick="submitSurvey()">
+          Antworten absenden
+        </button>
+      </div>
+    </section>
+
+    <section class="page" id="p6">
+      <h2>Vielen Dank für Ihre Teilnahme</h2>
+      <div class="info-box blue">
+        <p class="success">Ihre Antworten wurden erfolgreich gespeichert.</p>
+        <p>Sie können dieses Fenster nun schließen.</p>
+      </div>
+    </section>
+
+    <section class="page" id="decline">
+      <h2>Vielen Dank für Ihr Interesse</h2>
+      <div class="info-box">
+        Da Sie der Teilnahme nicht zugestimmt haben, endet die Befragung an dieser Stelle.
+        Es wurden keine Befragungsantworten gespeichert.
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+    Gruppe 6 · International Finance · Sommersemester 2026 · Bachelorprojekt
+  </div>
+</main>
+
+<script>
+  const startTime = Date.now();
+
+  const demandValues = [9, 11, 13, 15];
+  let condition = Number(sessionStorage.getItem("condition"));
+
+  if (![1, 2, 3, 4].includes(condition)) {
+    condition = Math.floor(Math.random() * 4) + 1;
+    sessionStorage.setItem("condition", String(condition));
+  }
+
+  const demand = demandValues[condition - 1];
+  let finalGrade = null;
+
+  const gradeDescriptions = {
+    15: "sehr gut (1+)",
+    14: "sehr gut (1)",
+    13: "sehr gut (1−)",
+    12: "gut (2+)",
+    11: "gut (2)",
+    10: "gut (2−)",
+    9: "befriedigend (3+)",
+    8: "befriedigend (3)",
+    7: "befriedigend (3−)",
+    6: "ausreichend (4+)",
+    5: "ausreichend (4)",
+    4: "nicht bestanden",
+    3: "nicht bestanden",
+    2: "nicht bestanden",
+    1: "nicht bestanden",
+    0: "nicht bestanden"
+  };
+
+  const likertItems = [
+    ["pressure", "Die Forderung des Studierenden hat bei mir Druck ausgelöst."],
+    ["restrictedFreedom", "Die Forderung hat meine Freiheit bei der Bewertung eingeschränkt."],
+    ["manipulative", "Die Forderung des Studierenden wirkte auf mich manipulativ."],
+    ["anger", "Die Forderung des Studierenden hat mich verärgert."],
+    ["appropriate", "Die Forderung des Studierenden wirkte auf mich angemessen."],
+    ["fair", "Die Forderung des Studierenden wirkte auf mich fair."]
+  ];
+
+  document.querySelectorAll(".demandValue").forEach(el => {
+    el.textContent = demand;
+  });
+
+  function showPage(number) {
+    document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+    document.getElementById("p" + number).classList.add("active");
+    document.getElementById("bar").style.width = (number / 6 * 100) + "%";
+    document.getElementById("step").textContent = `Schritt ${number} von 6`;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function handleConsent() {
+    const selected = document.querySelector('input[name="consent"]:checked');
+
+    if (!selected) {
+      document.getElementById("consentError").classList.add("show");
+      return;
+    }
+
+    document.getElementById("consentError").classList.remove("show");
+
+    if (selected.value === "no") {
+      document.querySelectorAll(".page").forEach(page => page.classList.remove("active"));
+      document.getElementById("decline").classList.add("active");
+      document.getElementById("bar").style.width = "100%";
+      document.getElementById("step").textContent = "Befragung beendet";
+      return;
+    }
+
+    showPage(2);
+  }
+
+  function buildGradeList() {
+    const list = document.getElementById("gradeList");
+
+    for (let grade = 15; grade >= 0; grade--) {
+      const label = document.createElement("label");
+      label.className = "grade-row";
+      label.innerHTML = `
+        <input type="radio" name="finalGrade" value="${grade}">
+        <strong>${grade} ${grade === 1 ? "Punkt" : "Punkte"}</strong>
+        <span>– ${gradeDescriptions[grade]}</span>
+      `;
+      list.appendChild(label);
+    }
+
+    document.querySelectorAll('input[name="finalGrade"]').forEach(input => {
+      input.addEventListener("change", event => {
+        finalGrade = Number(event.target.value);
+        document.getElementById("gradeError").classList.remove("show");
       });
+    });
+  }
+
+  function buildLikert() {
+    const container = document.getElementById("likertContainer");
+
+    likertItems.forEach(([key, text]) => {
+      const block = document.createElement("div");
+      block.className = "likert";
+
+      block.innerHTML = `
+        <div class="likert-title">${text}</div>
+        <div class="scale">
+          ${[1,2,3,4,5].map(value => `
+            <label>
+              <input type="radio" name="${key}" value="${value}">
+              <span>${value}</span>
+            </label>
+          `).join("")}
+        </div>
+        <div class="anchors">
+          <span>1 = stimme gar nicht zu</span>
+          <span>5 = stimme voll zu</span>
+        </div>
+      `;
+
+      container.appendChild(block);
+    });
+  }
+
+  function continueRating() {
+    if (finalGrade === null) {
+      document.getElementById("gradeError").classList.add("show");
+      return;
     }
 
-    function startSurvey() {
-      const consent = document.getElementById("consent").checked;
+    showPage(5);
+  }
 
-      if (!consent) {
-        document.getElementById("consent-error").classList.remove("hidden");
-        return;
-      }
+  function radioValue(name) {
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    return selected ? selected.value : null;
+  }
 
-      document.getElementById("consent-error").classList.add("hidden");
-      hideAll();
-      document.getElementById("page-scenario").classList.remove("hidden");
+  function questionnaireValid() {
+    return radioValue("roleCheck")
+      && document.getElementById("recalledDemand").value !== ""
+      && document.getElementById("mainReason").value !== ""
+      && likertItems.every(([key]) => radioValue(key) !== null);
+  }
+
+  async function submitSurvey() {
+    const errorBox = document.getElementById("questionnaireError");
+    const submitButton = document.getElementById("submitButton");
+
+    if (!questionnaireValid()) {
+      errorBox.classList.add("show");
+      return;
     }
 
-    function showStatement() {
-      document.getElementById("demand-text").textContent = demand;
-      hideAll();
-      document.getElementById("page-statement").classList.remove("hidden");
-    }
+    errorBox.classList.remove("show");
+    submitButton.disabled = true;
+    submitButton.textContent = "Wird gespeichert ...";
 
-    function showRating() {
-      document.getElementById("demand-summary").textContent = demand;
-      hideAll();
-      document.getElementById("page-rating").classList.remove("hidden");
-    }
+    const payload = {
+      consent: true,
+      condition,
+      demand,
+      finalGrade,
+      roleCheck: radioValue("roleCheck"),
+      recalledDemand: Number(document.getElementById("recalledDemand").value),
+      pressure: Number(radioValue("pressure")),
+      restrictedFreedom: Number(radioValue("restrictedFreedom")),
+      manipulative: Number(radioValue("manipulative")),
+      anger: Number(radioValue("anger")),
+      appropriate: Number(radioValue("appropriate")),
+      fair: Number(radioValue("fair")),
+      mainReason: document.getElementById("mainReason").value,
+      comment: document.getElementById("comment").value.trim(),
+      durationSeconds: Math.round((Date.now() - startTime) / 1000)
+    };
 
-    function buildGradeGrid() {
-      const grid = document.getElementById("grade-grid");
-
-      for (let i = 0; i <= 15; i++) {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="radio" name="finalGrade" value="${i}" /> ${i}`;
-        grid.appendChild(label);
-      }
-
-      document.querySelectorAll("input[name='finalGrade']").forEach(input => {
-        input.addEventListener("change", () => {
-          finalGrade = Number(input.value);
-        });
+    try {
+      const response = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
-    }
 
-    function buildScales() {
-      document.querySelectorAll(".scale").forEach(scale => {
-        const name = scale.dataset.name;
+      const result = await response.json().catch(() => ({}));
 
-        for (let i = 1; i <= 5; i++) {
-          const label = document.createElement("label");
-          label.innerHTML = `<input type="radio" name="${name}" value="${i}" /> ${i}`;
-          scale.appendChild(label);
-        }
-      });
-    }
-
-    function getRadioValue(name) {
-      const selected = document.querySelector(`input[name="${name}"]:checked`);
-      return selected ? Number(selected.value) : null;
-    }
-
-    async function submitSurvey() {
-      const errorBox = document.getElementById("submit-error");
-      errorBox.classList.add("hidden");
-      errorBox.textContent = "";
-
-      if (finalGrade === null) {
-        errorBox.textContent = "Bitte wählen Sie eine finale Punktzahl aus.";
-        errorBox.classList.remove("hidden");
-        return;
+      if (!response.ok) {
+        throw new Error(result.error || "Speichern fehlgeschlagen.");
       }
 
-      const payload = {
-        consent: true,
-        condition: condition,
-        demand: demand,
-        finalGrade: finalGrade,
-        perceivedFairness: getRadioValue("perceivedFairness"),
-        perceivedExaggeration: getRadioValue("perceivedExaggeration"),
-        resistance: getRadioValue("resistance"),
-        seriousness: getRadioValue("seriousness"),
-        age: document.getElementById("age").value,
-        gender: document.getElementById("gender").value,
-        universityRelation: document.getElementById("universityRelation").value,
-        durationSeconds: Math.round((Date.now() - startTime) / 1000)
-      };
-
-      try {
-        const response = await fetch("/api/submit", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || "Speichern fehlgeschlagen.");
-        }
-
-        hideAll();
-        document.getElementById("page-thanks").classList.remove("hidden");
-      } catch (error) {
-        errorBox.textContent = "Fehler beim Speichern: " + error.message;
-        errorBox.classList.remove("hidden");
-      }
+      sessionStorage.removeItem("condition");
+      showPage(6);
+    } catch (error) {
+      errorBox.textContent = "Fehler beim Speichern: " + error.message;
+      errorBox.classList.add("show");
+      submitButton.disabled = false;
+      submitButton.textContent = "Antworten absenden";
     }
+  }
 
-    buildGradeGrid();
-    buildScales();
-  </script>
+  buildGradeList();
+  buildLikert();
+  showPage(1);
+</script>
 </body>
 </html>
