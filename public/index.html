@@ -649,14 +649,14 @@
     0: "nicht bestanden"
   };
 
-  const likertItems = [
-    ["pressure", "Die Forderung des Studierenden hat bei mir Druck ausgelöst."],
-    ["restrictedFreedom", "Die Forderung hat meine Freiheit bei der Bewertung eingeschränkt."],
-    ["manipulative", "Die Forderung des Studierenden wirkte auf mich manipulativ."],
-    ["anger", "Die Forderung des Studierenden hat mich verärgert."],
-    ["appropriate", "Die Forderung des Studierenden wirkte auf mich angemessen."],
-    ["fair", "Die Forderung des Studierenden wirkte auf mich fair."]
-  ];
+const likertItems = [
+    ["pressure", "1. Die Forderung des Studierenden hat bei mir Druck ausgelöst."],
+    ["restrictedFreedom", "2. Die Forderung hat meine Freiheit bei der Bewertung eingeschränkt."],
+    ["manipulative", "3. Die Forderung des Studierenden wirkte auf mich manipulativ."],
+    ["anger", "4. Die Forderung des Studierenden hat mich verärgert."],
+    ["appropriate", "5. Die Forderung des Studierenden wirkte auf mich angemessen."],
+    ["fair", "6. Die Forderung des Studierenden wirkte auf mich fair."]
+];
 
   document.querySelectorAll(".demandValue").forEach(el => {
     el.textContent = demand;
